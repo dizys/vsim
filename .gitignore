@@ -1,0 +1,38 @@
+# Develepment environment
+
+.env
+
+# Cache files
+
+.temp/
+
+# Installable packages
+
+node_modules/
+
+# Configuration
+
+.config/
+.expo/
+
+# Building artifacts
+
+bld/
+build/
+dist/
+.cache/
+releases/
+*.tgz
+
+# Debugging outputs
+
+debug/
+*.log
+
+# Testing files
+
+/test.*
+
+# File system
+
+.DS_Store
