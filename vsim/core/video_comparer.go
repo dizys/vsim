@@ -3,6 +3,9 @@ package core
 import (
 	"fmt"
 	"github.com/cheggaaa/pb/v3"
+	"github.com/panjf2000/ants"
+	"go.uber.org/atomic"
+	"sync"
 	"vsim/utils"
 )
 
@@ -150,4 +153,45 @@ func (comparer *VideoComparer) Compare() (err error) {
 	fmt.Printf("Total diff sum: %.2f\n", totalDiff)
 
 	return
+}
+
+func (comparer *VideoComparer) CompareInPool(size int) {
+	if size <= 0 {
+		size = 4
+	}
+
+	length := comparer.GetLength()
+
+	var totalDiff atomic.Float64
+
+	bar := pb.StartNew(length)
+
+	var group sync.WaitGroup
+
+	pool, _ := ants.NewPoolWithFunc(size, func(i interface{}) {
+		n := i.(int)
+
+		diff, err := comparer.CompareFrameAt(n)
+
+		if err != nil {
+			panic(err)
+		}
+
+		totalDiff.Add(diff)
+
+		bar.Increment()
+		group.Done()
+	})
+	defer pool.Release()
+
+	for i := 0; i < length; i++ {
+		group.Add(1)
+		_ = pool.Invoke(i)
+	}
+
+	group.Wait()
+
+	bar.Finish()
+
+	fmt.Printf("Total diff sum: %.2f\n", totalDiff.Load())
 }

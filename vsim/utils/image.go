@@ -33,5 +33,5 @@ func getColorDiff(colorA, colorB color.Color) (diff float64) {
 	diff += math.Abs(float64(b1 - b2))
 	diff += math.Abs(float64(a1 - a2))
 
-	return diff
+	return diff / 255
 }
